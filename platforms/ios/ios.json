@@ -1,0 +1,53 @@
+{
+  "prepare_queue": {
+    "installed": [],
+    "uninstalled": []
+  },
+  "config_munge": {
+    "files": {
+      "config.xml": {
+        "parents": {
+          "/*": [
+            {
+              "xml": "<feature name=\"VuforiaPlugin\"><param name=\"ios-package\" value=\"VuforiaPlugin\" /></feature>",
+              "count": 1
+            }
+          ]
+        }
+      },
+      "*-Info.plist": {
+        "parents": {
+          "NSCameraUsageDescription": [
+            {
+              "xml": "<string>To scan for images.</string>",
+              "count": 1
+            }
+          ]
+        }
+      }
+    }
+  },
+  "installed_plugins": {
+    "cordova-plugin-vuforia-sdk": {
+      "PACKAGE_NAME": "com.phonegap.helloworld"
+    },
+    "cordova-plugin-vuforia": {
+      "PACKAGE_NAME": "com.phonegap.helloworld"
+    }
+  },
+  "dependent_plugins": {},
+  "modules": [
+    {
+      "id": "cordova-plugin-vuforia.VuforiaPlugin",
+      "file": "plugins/cordova-plugin-vuforia/www/VuforiaPlugin.js",
+      "pluginId": "cordova-plugin-vuforia",
+      "clobbers": [
+        "navigator.VuforiaPlugin"
+      ]
+    }
+  ],
+  "plugin_metadata": {
+    "cordova-plugin-vuforia-sdk": "6.0.117",
+    "cordova-plugin-vuforia": "3.2.1"
+  }
+}
