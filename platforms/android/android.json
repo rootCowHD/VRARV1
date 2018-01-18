@@ -42,6 +42,12 @@
               "xml": "<activity android:configChanges=\"orientation|keyboardHidden|screenSize|smallestScreenSize\" android:name=\"com.mattrayner.vuforia.app.ImageTargets\" android:noHistory=\"true\" android:screenOrientation=\"landscape\"></activity>",
               "count": 1
             }
+          ],
+          "/manifest": [
+            {
+              "xml": "<uses-permission android:name=\"android.permission.VIBRATE\" />",
+              "count": 1
+            }
           ]
         }
       },
@@ -73,6 +79,9 @@
     },
     "cordova-plugin-vuforia": {
       "PACKAGE_NAME": "com.phonegap.helloworld"
+    },
+    "cordova-plugin-vibration": {
+      "PACKAGE_NAME": "com.phonegap.helloworld"
     }
   },
   "dependent_plugins": {},
@@ -88,6 +97,7 @@
   ],
   "plugin_metadata": {
     "cordova-plugin-vuforia-sdk": "6.0.117",
-    "cordova-plugin-vuforia": "3.2.1"
+    "cordova-plugin-vuforia": "3.2.1",
+    "cordova-plugin-vibration": "3.0.1"
   }
 }

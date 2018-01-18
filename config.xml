@@ -14,5 +14,5 @@
         <resource-file src="www/targets/CustomData.dat" target="assets/CustomData.dat" />
     </platform>
     <engine name="android" spec="~6.3.0" />
-    <engine name="ios" spec="~4.5.3" />
+    <engine name="ios" spec="^4.5.3" />
 </widget>

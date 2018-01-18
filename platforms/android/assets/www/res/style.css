@@ -2,3 +2,62 @@ body{
   background-color: transparent;
   color:#000000;
 }
+
+#showRoom{
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  background: white;
+  visibility: hidden;
+}
+
+#roomInfo, #roomDates{
+  position: relative;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+#roomHead{
+  text-align: center;
+  font-size: 200%;
+  font-weight: bold;
+}
+
+.half{
+  float:left;
+  width: 48%;
+}
+
+.full{
+  float:left;
+  width: 98%;
+  text-align: center;
+}
+
+#roomInfoButton, #roomDatesButton{
+
+}
+
+.app{
+  width:100%;
+  height:100%;
+  text-align: center;
+  z-index: 0;
+}
+
+.invis{
+  width: 0;
+  height: 0;
+  visibility: hidden;
+}
+
+.button{
+  margin-top: 15px;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  background-color: #dddddd;
+  border-radius: 25px;
+}

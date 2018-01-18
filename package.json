@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "cordova-android": "~6.3.0",
-    "cordova-ios": "^4.5.3"
+    "cordova-ios": "^4.5.3",
+    "cordova-plugin-vibration": "^3.0.1",
+    "cordova-sqlite-storage": "^2.2.0"
   }
 }

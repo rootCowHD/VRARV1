@@ -3,7 +3,11 @@
     <head>
         <meta charset="utf-8">
         <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, width=device-width">
-        <title>Blank App</title>
+        <title>HRW Room Check</title>
+
+        <link rel="stylesheet" href="res/jquery.mobile-1.4.5.min.css" />
+        <script src="res/jquery-3.2.1.min.js"></script>
+        <script src="res/jquery.mobile-1.4.5.min.js"></script>
 
         <link rel="stylesheet" href="res/style.css">
 
@@ -14,15 +18,35 @@
       <script src="res/javas.js"></script>
 
       <div class="app">
-          <h1>Hello Vuforia!</h1>
-          <div id="deviceready" class="blink">
-              <button class="button" id="start-vuforia">Click here to start Vuforia</button>
-              <button class="button" id="start-vuforia-with-no-overlay-text">Click here to start Vuforia without overlay text</button>
-              <button class="button" id="start-and-stop-vuforia">Click here to start Vuforia and attempt to stop it again after 5 seconds</button>
-              <button class="button" id="stop-vuforia">Click here to stop Vuforia</button>
-              <button class="button" id="start-vuforia-and-keep-open">Click here to start Vuforia and keep it open when an image is found</button>
-              <button class="button" id="start-vuforia-and-recognise-in-sequence">Click here to start Vuforia and recognise targets in sequence</button>
+        <h1>HRW Room Check</h1>
+        <div id="startScan" class="button">Raumnummer scannen</div>
+      </div>
+
+      <div id="showRoom">
+        <div id="roomHead" class="full">loading</div>
+        <div id="roomInfoButton" class="full button">Infos</div>
+        <div id="roomInfo" class="full invis">
+          <div class="label half">Art des Raumes:</div>
+          <div id="roomType" class="half"></div>
+          <div class="label half">Anzahl der Sitzplätze:</div>
+          <div id="roomSeats" class="half"></div>
+          <div id="roomProjector" class="full"></div>
+          <div id="roomChalkBoard" class="full"></div>
+          <div id="roomWhiteBoard" class="full"></div>
+          <div id="roomCloseInfo" class="full">information schließen</div>
+        </div>
+        <div id="roomDatesButton" class="full button"></div>
+        <div id="roomDates" class="full invis">
+          <div id="roomDatesFill">
+            <div id="Montag" class="day"></div>
+            <div id="Dienstag" class="day"></div>
+            <div id="Mittwoch" class="day"></div>
+            <div id="Donnerstag" class="day"></div>
+            <div id="Freitag" class="day"></div>
           </div>
+          <div id="roomCloseDates" class="full button">Termine schließen</div>
+        </div>
+        <div id="closeShowroom" class="full button">Ansicht schließen</div>
       </div>
 
 

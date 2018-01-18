@@ -16,9 +16,16 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
+var g_db;
+var showStatus = "main";
+
+var storage = window.localStorage;
+
+
 var app = {
     // Vuforia license
-    vuforiaLicense: 'AagZBDX/////AAAAGU6J3Zq0nkVem1dwIwjjASd90kLbi2boYVr1vLfMGXt2jOAzEAjYTHLMRb+vQJ7wtmyP1QKJO84U6DJRuUFbdhR0vAIk854OCMU9g1IM3FW/PwJOGZ+8r0F1fLLf8T1uOx2ZVGbm8OISnWJv+UqgOx0SfVWax7SGzZ8H2c01ZBT6tW67iT/+ns6ZsWNpYRA2XSrIOAS/+DkhW+gT4+MJSx4FgYjS4Ss1z7ZHbgXCkbBPjL/7uLVx2lDLZc6MVhb1Wnl2Lsh3nEPWyTDK1Qz0mHPnKFOmSuUnnzXxeGzm1ZYBYoptdE28tc2Qiw10TC5QopGLXiHjjYTgljQf3aAvQWy/A82KucDRzRa8G5BHmxYB',
+    vuforiaLicense: "AagZBDX/////AAAAGU6J3Zq0nkVem1dwIwjjASd90kLbi2boYVr1vLfMGXt2jOAzEAjYTHLMRb+vQJ7wtmyP1QKJO84U6DJRuUFbdhR0vAIk854OCMU9g1IM3FW/PwJOGZ+8r0F1fLLf8T1uOx2ZVGbm8OISnWJv+UqgOx0SfVWax7SGzZ8H2c01ZBT6tW67iT/+ns6ZsWNpYRA2XSrIOAS/+DkhW+gT4+MJSx4FgYjS4Ss1z7ZHbgXCkbBPjL/7uLVx2lDLZc6MVhb1Wnl2Lsh3nEPWyTDK1Qz0mHPnKFOmSuUnnzXxeGzm1ZYBYoptdE28tc2Qiw10TC5QopGLXiHjjYTgljQf3aAvQWy/A82KucDRzRa8G5BHmxYB",
     // Are we launching Vuforia with simple options?
     simpleOptions: null,
     // Which images have we matched?
@@ -30,116 +37,33 @@ var app = {
     // Bind Event Listeners
     //
     // Bind any events that are required on startup. Common events are:
-    // 'load', 'deviceready', 'offline', and 'online'.
+    // "load", "deviceready", "offline", and "online".
     bindEvents: function() {
-        document.addEventListener('deviceready', this.onDeviceReady, false);
+        document.addEventListener("deviceready", this.onDeviceReady, false);
     },
     // deviceready Event Handler
     //
-    // The scope of 'this' is the event. In order to call the 'receivedEvent'
-    // function, we must explicitly call 'app.receivedEvent(...);'
+    // The scope of "this" is the event. In order to call the "receivedEvent"
+    // function, we must explicitly call "app.receivedEvent(...);"
     onDeviceReady: function() {
-        app.receivedEvent('deviceready');
+        app.receivedEvent("deviceready");
     },
     // Update DOM on a Received Event
     receivedEvent: function(id) {
         // Start Vuforia using simple options
-        document.getElementById('start-vuforia').onclick = function () {
+        document.getElementById("startScan").onclick = function () {
             app.startVuforia(true);
-        };
-
-        // Start Vuforia with no overlay text
-        document.getElementById('start-vuforia-with-no-overlay-text').onclick = function () {
-            app.startVuforia(true, undefined, null)
-        };
-
-        // Start Vuforia with simple options and try to close it after 5 seconds
-        document.getElementById('start-and-stop-vuforia').onclick = function () {
-            app.startVuforia(true);
-
-            console.log('Starting timer...');
-
-            // Wait for a timeout, then automatically stop Vuforia
-            setTimeout(function(){
-                app.stopVuforia();
-            }, 5000);
-        };
-
-        // Attempt to stop Vuforia
-        document.getElementById('stop-vuforia').onclick = function () {
-            app.stopVuforia();
-        };
-
-        // Start Vuforia with full options and keep it open when images are found
-        document.getElementById('start-vuforia-and-keep-open').onclick = function () {
-            app.startVuforia(false);
-        };
-
-        //start-vuforia-and-recognise-in-sequence
-
-        // Start Vuforia with full options and keep it open when images are found
-        document.getElementById('start-vuforia-and-recognise-in-sequence').onclick = function () {
-            var imagesMatched = 0,
-                imageSequence = [ 'iceland', ['canterbury-grass', 'brick-lane'], 'iceland' ];
-
-            var successCallback = function(data) {
-                console.log('Found '+data.result.imageName);
-
-                imagesMatched++;
-
-                app.playSound(); // Play a sound so that the user has some feedback
-
-                // Are there more images to match?
-                if(imagesMatched < imageSequence.length) {
-                    var newTargets = [ imageSequence[imagesMatched] ];
-
-                    console.log('Updating targets to: '+newTargets);
-
-                    navigator.VuforiaPlugin.updateVuforiaTargets(
-                        newTargets,
-                        function(data){
-                            console.log(data);
-                            console.log('Updated targets');
-                        },
-                        function(data) {
-                            alert("Error: " + data);
-                        }
-                    );
-                } else {
-                    navigator.VuforiaPlugin.stopVuforia(function(){
-                        alert("Congratulations!\nYou found all three images!");
-                    },
-                    app.errorHandler);
-                }
-            };
-
-            var options = {
-                databaseXmlFile: 'PluginTest.xml',
-                targetList: [ 'iceland' ],
-                overlayMessage: 'Scan images in the order: \'iceland\', (\'canterbury-grass\' or \'brick-lane\'), then \'iceland\'.',
-                vuforiaLicense: app.vuforiaLicense,
-                autostopOnImageFound: false
-            };
-
-            // Start Vuforia with our options
-            navigator.VuforiaPlugin.startVuforia(
-                options,
-                successCallback,
-                function(data) {
-                    alert("Error: " + data);
-                }
-            );
         };
     },
     // Start the Vuforia plugin
     startVuforia: function(simpleOptions, successCallback, overlayMessage, targets){
         var options;
 
-        if(typeof overlayMessage == 'undefined')
-            overlayMessage = 'Point your camera at a test image...';
+        if(typeof overlayMessage == "undefined")
+            overlayMessage = "Bitte richte deine Kamera auf ein Raumschild";
 
-        if(typeof targets == 'undefined')
-            targets = [ 'stones', 'chips' ];
+        if(typeof targets == "undefined")
+            targets = [ "HS_1", "HS_2", "HS_3", "HS_4" ];
 
         // Reset the matched images
         app.matchedImages = [];
@@ -148,19 +72,19 @@ var app = {
         app.simpleOptions = simpleOptions;
 
         // Log out wether or not we are using simpleOptions
-        console.log('Simple options: '+!!app.simpleOptions);
+        console.log("Simple options: "+!!app.simpleOptions);
 
         // Load either simple, or full options
         if(!!app.simpleOptions){
             options = {
-                databaseXmlFile: 'www/targets/StonesAndChips.xml',
+                databaseXmlFile: "www/targets/HRW.xml",
                 targetList: targets,
                 overlayMessage: overlayMessage,
                 vuforiaLicense: app.vuforiaLicense
             };
         } else {
             options = {
-                databaseXmlFile: 'www/targets/StonesAndChips.xml',
+                databaseXmlFile: "www/targets/HRW.xml",
                 targetList: targets,
                 vuforiaLicense: app.vuforiaLicense,
                 overlayMessage: overlayMessage,
@@ -180,39 +104,28 @@ var app = {
         );
     },
     vuforiaMatch: function(data) {
-        // To see exactly what `data` can contain, see 'Success callback `data` API' within the plugin's documentation.
-        console.log(data);
-
         // Have we found an image?
+
         if(data.status.imageFound) {
             // If we are using simple options, alert the image name
             if(app.simpleOptions) {
-                alert("Image name: "+ data.result.imageName);
-            } else { // If we are using full options, add the image to an array of images matched
-                app.matchedImages.push(data.result.imageName);
-                app.playSound(); // Play a sound so that the user has some feedback
+                loadInfo(data.result.imageName);
+                //Toene beim Scannen abspielen
+                //app.playSound(); // Play a sound so that the user has some feedback
+            //    navigator.vibrate(500);
             }
-        }
-        // Are we manually closing?
-        else if (data.status.manuallyClosed) {
-            // Let the user know they've manually closed Vuforia
-            alert("User manually closed Vuforia!");
-
-            // If we've matched any images, tell the user what we found
-            if(app.matchedImages.length){
-                alert("Found:\n"+app.matchedImages);
-            }
-        }
+        }/**/
+        console.log(data);
     },
     // Stop the Vuforia plugin
     stopVuforia: function(){
         navigator.VuforiaPlugin.stopVuforia(function (data) {
             console.log(data);
 
-            if (data.success == 'true') {
-                alert('TOO SLOW! You took too long to find an image.');
+            if (data.success == "true") {
+                alert("TOO SLOW! You took too long to find an image.");
             } else {
-                alert('Couldn\'t stop Vuforia\n'+data.message);
+                alert("Couldn\"t stop Vuforia\n"+data.message);
             }
         }, function (data) {
             console.log("Error stopping Vuforia:\n"+data);
@@ -225,14 +138,14 @@ var app = {
 
         // Setup the media object
         var media = new Media(soundURL, function(){
-            console.log('Sound Played');
+            console.log("Sound Played");
 
             navigator.VuforiaPlugin.startVuforiaTrackers(
                 function() {
-                    console.log('Started tracking again')
+                    console.log("Started tracking again")
                 },
                 function() {
-                    console.log('Could not start tracking again')
+                    console.log("Could not start tracking again")
                 }
             );
         }, app.mediaError);
@@ -246,9 +159,1184 @@ var app = {
     },
     // Handle a media error
     mediaError: function(e) {
-        alert('Media Error');
+        alert("Media Error");
         alert(JSON.stringify(e));
     }
 };
 
+$(document).ready(function(){
+  $("#closeShowroom").on("touch click",function(){
+    $("#showRoom").css("visibility","hidden");
+    $("#roomDates").toggleClass("invis");
+    $("#roomInfo").toggleClass("invis");
+  });
+  $("#roomInfoButton").on("touch click",function(){
+    $("#roomInfo").toggleClass("invis");
+  });
+  $("#roomCloseInfo").on("touch click",function(){
+    $("#roomInfo").toggleClass("invis");
+  });
+  $("#roomCloseDates").on("touch click",function(){
+    $("#roomDates").toggleClass("invis");
+  });
+  $("#roomDatesButton").on("touch click",function(){
+      $("#roomDates").toggleClass("invis");
+  });
+
+  //Abfrage nach aenderungen seit letztem Datum
+  var lastTime = storage.getItem("lastDate");
+  //Abfrage
+  /*if (!lastTime instanceof Date){
+    firstLoadDB();
+  }/**/
+  firstLoadDB();
+  //todo: update der Datenbank von Server
+
+
+
+  //Speichern der letzten Abfrage als letztes Datum
+  storage.setItem("lastDate", Date.now());
+  //laden der lokalen Datenbank
+  g_db = JSON.parse(localStorage.getItem("db"));
+});
+
+function loadInfo(e){
+    loadHTML(e);
+    $("#showRoom").css("visibility","visible");
+}
+
 app.initialize();
+
+
+function loadHTML(k){
+
+  $("#Montag").html("<div class='full'>Montag</div>");
+  $("#Dienstag").html("<div class='full'>Dienstag</div>");
+  $("#Mittwoch").html("<div class='full'>Mittwoch</div>");
+  $("#Donnerstag").html("<div class='full'>Donnerstag</div>");
+  $("#Freitag").html("<div class='full'>Freitag</div>");
+  var count = 0;
+  for (var i = 0; i < g_db.belegung.length; i++) {
+    if(g_db.belegung[i].HS_Nr == k){
+      count++;/**/
+      if(g_db.belegung[i].Wochentag == "Montag"){
+        $("#Montag").append("<div class='half'>"+g_db.belegung[i].Startzeit+"</div>");
+        $("#Montag").append("<div class='half'>"+g_db.belegung[i].Endezeit+"</div>");
+      }
+      else if(g_db.belegung[i].Wochentag == "Dienstag"){
+        $("#Dienstag").append("<div class='half'>"+g_db.belegung[i].Startzeit+"</div>");
+        $("#Dienstag").append("<div class='half'>"+g_db.belegung[i].Endezeit+"</div>");
+      }
+      else if(g_db.belegung[i].Wochentag == "Mittwoch"){
+        $("#Mittwoch").append("<div class='half'>"+g_db.belegung[i].Startzeit+"</div>");
+        $("#Mittwoch").append("<div class='half'>"+g_db.belegung[i].Endezeit+"</div>");
+      }
+      else if(g_db.belegung[i].Wochentag == "Donnerstag"){
+        $("#Donnerstag").append("<div class='half'>"+g_db.belegung[i].Startzeit+"</div>");
+        $("#Donnerstag").append("<div class='half'>"+g_db.belegung[i].Endezeit+"</div>");
+      }
+      else if(g_db.belegung[i].Wochentag == "Freitag"){
+        $("#Freitag").append("<div class='half'>"+g_db.belegung[i].Startzeit+"</div>");
+        $("#Freitag").append("<div class='half'>"+g_db.belegung[i].Endezeit+"</div>");
+      }/**/
+    }
+  }
+  for (var i = 0; i < g_db.raeume.length; i++){
+    if(g_db.raeume[i].HS_Nr == k){
+      $("#roomType").html(g_db.raeume[i].Typ);
+      $("#roomSeats").html(g_db.raeume[i].Sitzplaetze);
+      if(g_db.raeume[i].Beamer == 1){
+        $("#roomProjector").html("Beamer vorhanden");
+      }
+      if(g_db.raeume[i].Tafel == 1){
+        $("#roomChalkBoard").html("Tafel vorhanden");
+      }
+      if(g_db.raeume[i].Whiteboard == 1){
+        $("#roomWhiteBoard").html("Whiteboard vorhanden");
+      }
+    }
+  }
+
+  $("#roomHead").html(k);
+  $("#roomDatesButton").html(count+" vergebene Termine");
+}
+
+//Die Datenbank ist hart verdrahtet, um unabhaengig von einem Server zu sein.
+//Diese Datenbank wuerde entsprechend durch einen Server geupdated werden.
+//Durch das lokale vorhalten, wird eine permanente Internetverbindung nicht voraus gesetzt.
+function firstLoadDB(){
+  var tmp = {
+  "raeume": [
+    {
+      "HS_Nr": "HS_1",
+      "Typ": "Hoersaal",
+      "{{3}}": null,
+      "{{4}}')": null,
+      "Sitzplaetze": "40",
+      "PC_Hoersaal": "0",
+      "Beamer": "1",
+      "Tafel": "1",
+      "Whiteboard": "0"
+    },
+    {
+      "HS_Nr": "HS_2",
+      "Typ": "Hoersaal",
+      "{{3}}": null,
+      "{{4}}')": null,
+      "Sitzplaetze": "90",
+      "PC_Hoersaal": "0",
+      "Beamer": "1",
+      "Tafel": "1",
+      "Whiteboard": "0"
+    },
+    {
+      "HS_Nr": "HS_3",
+      "Typ": "Hoersaal",
+      "{{3}}": null,
+      "{{4}}')": null,
+      "Sitzplaetze": "90",
+      "PC_Hoersaal": "0",
+      "Beamer": "1",
+      "Tafel": "1",
+      "Whiteboard": "0"
+    },
+    {
+      "HS_Nr": "HS_4",
+      "Typ": "Hoersaal",
+      "{{3}}": null,
+      "{{4}}')": null,
+      "Sitzplaetze": "90",
+      "PC_Hoersaal": "0",
+      "Beamer": "1",
+      "Tafel": "1",
+      "Whiteboard": "0"
+    }
+  ],
+  "belegung": [
+    {
+      "Belegung_ID": "1",
+      "HS_Nr": "HS_3",
+      "Wochentag": "Montag",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "00:00:00",
+      "Endezeit": "07:59:00"
+    },
+    {
+      "Belegung_ID": "2",
+      "HS_Nr": "HS_3",
+      "Wochentag": "Montag",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "18:00:00",
+      "Endezeit": "23:59:00"
+    },
+    {
+      "Belegung_ID": "3",
+      "HS_Nr": "HS_1",
+      "Wochentag": "Montag",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "00:00:00",
+      "Endezeit": "07:59:00"
+    },
+    {
+      "Belegung_ID": "4",
+      "HS_Nr": "HS_2",
+      "Wochentag": "Montag",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "00:00:00",
+      "Endezeit": "07:59:00"
+    },
+    {
+      "Belegung_ID": "5",
+      "HS_Nr": "HS_4",
+      "Wochentag": "Montag",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "00:00:00",
+      "Endezeit": "07:59:00"
+    },
+    {
+      "Belegung_ID": "6",
+      "HS_Nr": "HS_1",
+      "Wochentag": "Montag",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "18:00:00",
+      "Endezeit": "23:59:00"
+    },
+    {
+      "Belegung_ID": "7",
+      "HS_Nr": "HS_2",
+      "Wochentag": "Montag",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "18:00:00",
+      "Endezeit": "23:59:00"
+    },
+    {
+      "Belegung_ID": "8",
+      "HS_Nr": "HS_4",
+      "Wochentag": "Montag",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "18:00:00",
+      "Endezeit": "23:59:00"
+    },
+    {
+      "Belegung_ID": "9",
+      "HS_Nr": "HS_1",
+      "Wochentag": "Montag",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "08:00:00",
+      "Endezeit": "10:30:00"
+    },
+    {
+      "Belegung_ID": "10",
+      "HS_Nr": "HS_1",
+      "Wochentag": "Montag",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "08:00:00",
+      "Endezeit": "10:30:00"
+    },
+    {
+      "Belegung_ID": "11",
+      "HS_Nr": "HS_1",
+      "Wochentag": "Montag",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "10:35:00",
+      "Endezeit": "12:15:00"
+    },
+    {
+      "Belegung_ID": "12",
+      "HS_Nr": "HS_1",
+      "Wochentag": "Dienstag",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "09:35:00",
+      "Endezeit": "11:20:00"
+    },
+    {
+      "Belegung_ID": "13",
+      "HS_Nr": "HS_1",
+      "Wochentag": "Dienstag",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "13:15:00",
+      "Endezeit": "15:45:00"
+    },
+    {
+      "Belegung_ID": "14",
+      "HS_Nr": "HS_1",
+      "Wochentag": "Mittwoch",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "10:35:00",
+      "Endezeit": "12:15:00"
+    },
+    {
+      "Belegung_ID": "15",
+      "HS_Nr": "HS_1",
+      "Wochentag": "Mittwoch",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "12:20:00",
+      "Endezeit": "13:05:00"
+    },
+    {
+      "Belegung_ID": "16",
+      "HS_Nr": "HS_1",
+      "Wochentag": "Montag",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "10:35:00",
+      "Endezeit": "12:15:00"
+    },
+    {
+      "Belegung_ID": "17",
+      "HS_Nr": "HS_1",
+      "Wochentag": "Dienstag",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "09:35:00",
+      "Endezeit": "11:20:00"
+    },
+    {
+      "Belegung_ID": "18",
+      "HS_Nr": "HS_1",
+      "Wochentag": "Dienstag",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "13:15:00",
+      "Endezeit": "15:45:00"
+    },
+    {
+      "Belegung_ID": "19",
+      "HS_Nr": "HS_1",
+      "Wochentag": "Mittwoch",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "10:35:00",
+      "Endezeit": "12:15:00"
+    },
+    {
+      "Belegung_ID": "20",
+      "HS_Nr": "HS_1",
+      "Wochentag": "Mittwoch",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "12:20:00",
+      "Endezeit": "13:05:00"
+    },
+    {
+      "Belegung_ID": "21",
+      "HS_Nr": "HS_1",
+      "Wochentag": "Mittwoch",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "14:05:00",
+      "Endezeit": "16:35:00"
+    },
+    {
+      "Belegung_ID": "22",
+      "HS_Nr": "HS_1",
+      "Wochentag": "Donnerstag",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "08:00:00",
+      "Endezeit": "10:30:00"
+    },
+    {
+      "Belegung_ID": "23",
+      "HS_Nr": "HS_1",
+      "Wochentag": "Donnerstag",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "14:05:00",
+      "Endezeit": "14:50:00"
+    },
+    {
+      "Belegung_ID": "24",
+      "HS_Nr": "HS_1",
+      "Wochentag": "Freitag",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "12:15:00",
+      "Endezeit": "13:05:00"
+    },
+    {
+      "Belegung_ID": "25",
+      "HS_Nr": "HS_1",
+      "Wochentag": "Freitag",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "14:05:00",
+      "Endezeit": "18:20:00"
+    },
+    {
+      "Belegung_ID": "26",
+      "HS_Nr": "HS_1",
+      "Wochentag": "Dienstag",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "00:00:00",
+      "Endezeit": "07:59:00"
+    },
+    {
+      "Belegung_ID": "27",
+      "HS_Nr": "HS_1",
+      "Wochentag": "Dienstag",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "18:00:00",
+      "Endezeit": "23:59:00"
+    },
+    {
+      "Belegung_ID": "28",
+      "HS_Nr": "HS_1",
+      "Wochentag": "Mittwoch",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "00:00:00",
+      "Endezeit": "07:59:00"
+    },
+    {
+      "Belegung_ID": "29",
+      "HS_Nr": "HS_1",
+      "Wochentag": "Mittwoch",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "18:00:00",
+      "Endezeit": "23:59:00"
+    },
+    {
+      "Belegung_ID": "30",
+      "HS_Nr": "HS_1",
+      "Wochentag": "Donnerstag",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "00:00:00",
+      "Endezeit": "07:59:00"
+    },
+    {
+      "Belegung_ID": "31",
+      "HS_Nr": "HS_1",
+      "Wochentag": "Donnerstag",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "18:00:00",
+      "Endezeit": "23:59:00"
+    },
+    {
+      "Belegung_ID": "32",
+      "HS_Nr": "HS_1",
+      "Wochentag": "Freitag",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "00:00:00",
+      "Endezeit": "07:59:00"
+    },
+    {
+      "Belegung_ID": "33",
+      "HS_Nr": "HS_1",
+      "Wochentag": "Freitag",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "18:00:00",
+      "Endezeit": "23:59:00"
+    },
+    {
+      "Belegung_ID": "34",
+      "HS_Nr": "HS_2",
+      "Wochentag": "Montag",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "00:00:00",
+      "Endezeit": "07:59:00"
+    },
+    {
+      "Belegung_ID": "35",
+      "HS_Nr": "HS_2",
+      "Wochentag": "Montag",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "08:50:00",
+      "Endezeit": "11:20:00"
+    },
+    {
+      "Belegung_ID": "36",
+      "HS_Nr": "HS_2",
+      "Wochentag": "Montag",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "11:30:00",
+      "Endezeit": "12:15:00"
+    },
+    {
+      "Belegung_ID": "37",
+      "HS_Nr": "HS_2",
+      "Wochentag": "Montag",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "14:05:00",
+      "Endezeit": "15:45:00"
+    },
+    {
+      "Belegung_ID": "38",
+      "HS_Nr": "HS_2",
+      "Wochentag": "Montag",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "18:00:00",
+      "Endezeit": "23:59:00"
+    },
+    {
+      "Belegung_ID": "39",
+      "HS_Nr": "HS_2",
+      "Wochentag": "Dienstag",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "00:00:00",
+      "Endezeit": "07:59:00"
+    },
+    {
+      "Belegung_ID": "40",
+      "HS_Nr": "HS_2",
+      "Wochentag": "Dienstag",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "09:45:00",
+      "Endezeit": "10:30:00"
+    },
+    {
+      "Belegung_ID": "41",
+      "HS_Nr": "HS_2",
+      "Wochentag": "Dienstag",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "11:30:00",
+      "Endezeit": "13:05:00"
+    },
+    {
+      "Belegung_ID": "42",
+      "HS_Nr": "HS_2",
+      "Wochentag": "Dienstag",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "13:15:00",
+      "Endezeit": "14:50:00"
+    },
+    {
+      "Belegung_ID": "43",
+      "HS_Nr": "HS_2",
+      "Wochentag": "Dienstag",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "18:00:00",
+      "Endezeit": "23:59:00"
+    },
+    {
+      "Belegung_ID": "44",
+      "HS_Nr": "HS_2",
+      "Wochentag": "Mittwoch",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "00:00:00",
+      "Endezeit": "07:59:00"
+    },
+    {
+      "Belegung_ID": "45",
+      "HS_Nr": "HS_2",
+      "Wochentag": "Mittwoch",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "10:30:00",
+      "Endezeit": "12:15:00"
+    },
+    {
+      "Belegung_ID": "46",
+      "HS_Nr": "HS_2",
+      "Wochentag": "Mittwoch",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "14:05:00",
+      "Endezeit": "16:35:00"
+    },
+    {
+      "Belegung_ID": "47",
+      "HS_Nr": "HS_2",
+      "Wochentag": "Mittwoch",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "18:00:00",
+      "Endezeit": "23:59:00"
+    },
+    {
+      "Belegung_ID": "48",
+      "HS_Nr": "HS_2",
+      "Wochentag": "Donnerstag",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "00:00:00",
+      "Endezeit": "07:59:00"
+    },
+    {
+      "Belegung_ID": "49",
+      "HS_Nr": "HS_2",
+      "Wochentag": "Donnerstag",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "13:15:00",
+      "Endezeit": "16:35:00"
+    },
+    {
+      "Belegung_ID": "50",
+      "HS_Nr": "HS_2",
+      "Wochentag": "Donnerstag",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "18:00:00",
+      "Endezeit": "23:59:00"
+    },
+    {
+      "Belegung_ID": "51",
+      "HS_Nr": "HS_2",
+      "Wochentag": "Freitag",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "00:00:00",
+      "Endezeit": "07:59:00"
+    },
+    {
+      "Belegung_ID": "52",
+      "HS_Nr": "HS_2",
+      "Wochentag": "Freitag",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "08:00:00",
+      "Endezeit": "12:15:00"
+    },
+    {
+      "Belegung_ID": "53",
+      "HS_Nr": "HS_2",
+      "Wochentag": "Freitag",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "18:00:00",
+      "Endezeit": "23:59:00"
+    },
+    {
+      "Belegung_ID": "54",
+      "HS_Nr": "HS_3",
+      "Wochentag": "Montag",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "00:00:00",
+      "Endezeit": "07:59:00"
+    },
+    {
+      "Belegung_ID": "55",
+      "HS_Nr": "HS_3",
+      "Wochentag": "Montag",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "08:00:00",
+      "Endezeit": "10:30:00"
+    },
+    {
+      "Belegung_ID": "56",
+      "HS_Nr": "HS_3",
+      "Wochentag": "Montag",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "12:20:00",
+      "Endezeit": "14:05:00"
+    },
+    {
+      "Belegung_ID": "57",
+      "HS_Nr": "HS_3",
+      "Wochentag": "Montag",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "18:00:00",
+      "Endezeit": "23:59:00"
+    },
+    {
+      "Belegung_ID": "58",
+      "HS_Nr": "HS_3",
+      "Wochentag": "Dienstag",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "00:00:00",
+      "Endezeit": "07:59:00"
+    },
+    {
+      "Belegung_ID": "59",
+      "HS_Nr": "HS_3",
+      "Wochentag": "Dienstag",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "08:50:00",
+      "Endezeit": "09:35:00"
+    },
+    {
+      "Belegung_ID": "60",
+      "HS_Nr": "HS_3",
+      "Wochentag": "Dienstag",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "09:45:00",
+      "Endezeit": "13:05:00"
+    },
+    {
+      "Belegung_ID": "61",
+      "HS_Nr": "HS_3",
+      "Wochentag": "Dienstag",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "18:00:00",
+      "Endezeit": "23:59:00"
+    },
+    {
+      "Belegung_ID": "62",
+      "HS_Nr": "HS_3",
+      "Wochentag": "Mittwoch",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "00:00:00",
+      "Endezeit": "07:59:00"
+    },
+    {
+      "Belegung_ID": "63",
+      "HS_Nr": "HS_3",
+      "Wochentag": "Mittwoch",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "09:45:00",
+      "Endezeit": "11:20:00"
+    },
+    {
+      "Belegung_ID": "64",
+      "HS_Nr": "HS_3",
+      "Wochentag": "Mittwoch",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "11:30:00",
+      "Endezeit": "12:15:00"
+    },
+    {
+      "Belegung_ID": "65",
+      "HS_Nr": "HS_3",
+      "Wochentag": "Mittwoch",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "12:20:00",
+      "Endezeit": "14:00:00"
+    },
+    {
+      "Belegung_ID": "66",
+      "HS_Nr": "HS_3",
+      "Wochentag": "Mittwoch",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "18:00:00",
+      "Endezeit": "23:59:00"
+    },
+    {
+      "Belegung_ID": "67",
+      "HS_Nr": "HS_3",
+      "Wochentag": "Donnerstag",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "00:00:00",
+      "Endezeit": "07:59:00"
+    },
+    {
+      "Belegung_ID": "68",
+      "HS_Nr": "HS_3",
+      "Wochentag": "Donnerstag",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "09:45:00",
+      "Endezeit": "11:20:00"
+    },
+    {
+      "Belegung_ID": "69",
+      "HS_Nr": "HS_3",
+      "Wochentag": "Donnerstag",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "14:05:00",
+      "Endezeit": "15:45:00"
+    },
+    {
+      "Belegung_ID": "70",
+      "HS_Nr": "HS_3",
+      "Wochentag": "Donnerstag",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "18:00:00",
+      "Endezeit": "23:59:00"
+    },
+    {
+      "Belegung_ID": "71",
+      "HS_Nr": "HS_3",
+      "Wochentag": "Freitag",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "00:00:00",
+      "Endezeit": "07:59:00"
+    },
+    {
+      "Belegung_ID": "72",
+      "HS_Nr": "HS_3",
+      "Wochentag": "Freitag",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "12:20:00",
+      "Endezeit": "15:45:00"
+    },
+    {
+      "Belegung_ID": "73",
+      "HS_Nr": "HS_3",
+      "Wochentag": "Freitag",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "18:00:00",
+      "Endezeit": "23:59:00"
+    },
+    {
+      "Belegung_ID": "74",
+      "HS_Nr": "HS_4",
+      "Wochentag": "Montag",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "00:00:00",
+      "Endezeit": "07:59:00"
+    },
+    {
+      "Belegung_ID": "75",
+      "HS_Nr": "HS_4",
+      "Wochentag": "Montag",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "12:20:00",
+      "Endezeit": "15:45:00"
+    },
+    {
+      "Belegung_ID": "76",
+      "HS_Nr": "HS_4",
+      "Wochentag": "Montag",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "15:50:00",
+      "Endezeit": "16:35:00"
+    },
+    {
+      "Belegung_ID": "77",
+      "HS_Nr": "HS_4",
+      "Wochentag": "Montag",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "18:00:00",
+      "Endezeit": "23:59:00"
+    },
+    {
+      "Belegung_ID": "78",
+      "HS_Nr": "HS_4",
+      "Wochentag": "Dienstag",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "00:00:00",
+      "Endezeit": "07:59:00"
+    },
+    {
+      "Belegung_ID": "79",
+      "HS_Nr": "HS_4",
+      "Wochentag": "Dienstag",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "09:45:00",
+      "Endezeit": "12:15:00"
+    },
+    {
+      "Belegung_ID": "80",
+      "HS_Nr": "HS_4",
+      "Wochentag": "Dienstag",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "12:20:00",
+      "Endezeit": "14:00:00"
+    },
+    {
+      "Belegung_ID": "81",
+      "HS_Nr": "HS_4",
+      "Wochentag": "Dienstag",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "18:00:00",
+      "Endezeit": "23:59:00"
+    },
+    {
+      "Belegung_ID": "82",
+      "HS_Nr": "HS_4",
+      "Wochentag": "Mittwoch",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "00:00:00",
+      "Endezeit": "07:59:00"
+    },
+    {
+      "Belegung_ID": "83",
+      "HS_Nr": "HS_4",
+      "Wochentag": "Mittwoch",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "08:00:00",
+      "Endezeit": "10:35:00"
+    },
+    {
+      "Belegung_ID": "84",
+      "HS_Nr": "HS_4",
+      "Wochentag": "Mittwoch",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "10:45:00",
+      "Endezeit": "12:15:00"
+    },
+    {
+      "Belegung_ID": "85",
+      "HS_Nr": "HS_4",
+      "Wochentag": "Mittwoch",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "12:20:00",
+      "Endezeit": "14:50:00"
+    },
+    {
+      "Belegung_ID": "86",
+      "HS_Nr": "HS_4",
+      "Wochentag": "Mittwoch",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "18:00:00",
+      "Endezeit": "23:59:00"
+    },
+    {
+      "Belegung_ID": "87",
+      "HS_Nr": "HS_4",
+      "Wochentag": "Donnerstag",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "00:00:00",
+      "Endezeit": "07:59:00"
+    },
+    {
+      "Belegung_ID": "88",
+      "HS_Nr": "HS_4",
+      "Wochentag": "Donnerstag",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "10:45:00",
+      "Endezeit": "12:15:00"
+    },
+    {
+      "Belegung_ID": "89",
+      "HS_Nr": "HS_4",
+      "Wochentag": "Donnerstag",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "12:20:00",
+      "Endezeit": "14:00:00"
+    },
+    {
+      "Belegung_ID": "90",
+      "HS_Nr": "HS_4",
+      "Wochentag": "Donnerstag",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "18:00:00",
+      "Endezeit": "23:59:00"
+    },
+    {
+      "Belegung_ID": "91",
+      "HS_Nr": "HS_4",
+      "Wochentag": "Freitag",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "00:00:00",
+      "Endezeit": "07:59:00"
+    },
+    {
+      "Belegung_ID": "92",
+      "HS_Nr": "HS_4",
+      "Wochentag": "Freitag",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "08:50:00",
+      "Endezeit": "12:15:00"
+    },
+    {
+      "Belegung_ID": "93",
+      "HS_Nr": "HS_4",
+      "Wochentag": "Freitag",
+      "{{14}}": null,
+      "{{15}}": null,
+      "{{16}}": null,
+      "{{17}}')": null,
+      "Startzeit": "18:00:00",
+      "Endezeit": "23:59:00"
+    }
+  ]
+};
+  localStorage.setItem("db", JSON.stringify(tmp));
+}
