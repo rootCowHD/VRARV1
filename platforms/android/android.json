@@ -1,103 +1,103 @@
 {
-  "prepare_queue": {
-    "installed": [],
-    "uninstalled": []
-  },
-  "config_munge": {
-    "files": {
-      "AndroidManifest.xml": {
-        "parents": {
-          "/*": [
-            {
-              "xml": "<uses-feature android:glEsVersion=\"0x00020000\" />",
-              "count": 1
-            },
-            {
-              "xml": "<uses-feature android:name=\"android.hardware.camera\" />",
-              "count": 1
-            },
-            {
-              "xml": "<uses-permission android:name=\"android.permission.CAMERA\" />",
-              "count": 1
-            },
-            {
-              "xml": "<uses-permission android:name=\"android.permission.INTERNET\" />",
-              "count": 1
-            },
-            {
-              "xml": "<uses-permission android:name=\"android.permission.ACCESS_NETWORK_STATE\" />",
-              "count": 1
-            },
-            {
-              "xml": "<uses-permission android:name=\"android.permission.WRITE_EXTERNAL_STORAGE\" />",
-              "count": 1
-            },
-            {
-              "xml": "<uses-permission android:name=\"android.permission.READ_EXTERNAL_STORAGE\" />",
-              "count": 1
-            }
-          ],
-          "/manifest/application": [
-            {
-              "xml": "<activity android:configChanges=\"orientation|keyboardHidden|screenSize|smallestScreenSize\" android:name=\"com.mattrayner.vuforia.app.ImageTargets\" android:noHistory=\"true\" android:screenOrientation=\"landscape\"></activity>",
-              "count": 1
-            }
-          ],
-          "/manifest": [
-            {
-              "xml": "<uses-permission android:name=\"android.permission.VIBRATE\" />",
-              "count": 1
-            }
-          ]
-        }
-      },
-      "res/xml/config.xml": {
-        "parents": {
-          "/*": [
-            {
-              "xml": "<feature name=\"VuforiaPlugin\"><param name=\"android-package\" value=\"com.mattrayner.vuforia.VuforiaPlugin\" /></feature>",
-              "count": 1
-            }
-          ]
-        }
-      },
-      "res/values/strings.xml": {
-        "parents": {
-          "/*": [
-            {
-              "xml": "<string name=\"button_OK\">OK</string>",
-              "count": 1
-            }
-          ]
-        }
-      }
-    }
-  },
-  "installed_plugins": {
-    "cordova-plugin-vuforia-sdk": {
-      "PACKAGE_NAME": "com.phonegap.helloworld"
+    "prepare_queue": {
+        "installed": [],
+        "uninstalled": []
     },
-    "cordova-plugin-vuforia": {
-      "PACKAGE_NAME": "com.phonegap.helloworld"
+    "config_munge": {
+        "files": {
+            "AndroidManifest.xml": {
+                "parents": {
+                    "/*": [
+                        {
+                            "xml": "<uses-feature android:glEsVersion=\"0x00020000\" />",
+                            "count": 1
+                        },
+                        {
+                            "xml": "<uses-feature android:name=\"android.hardware.camera\" />",
+                            "count": 1
+                        },
+                        {
+                            "xml": "<uses-permission android:name=\"android.permission.CAMERA\" />",
+                            "count": 1
+                        },
+                        {
+                            "xml": "<uses-permission android:name=\"android.permission.INTERNET\" />",
+                            "count": 1
+                        },
+                        {
+                            "xml": "<uses-permission android:name=\"android.permission.ACCESS_NETWORK_STATE\" />",
+                            "count": 1
+                        },
+                        {
+                            "xml": "<uses-permission android:name=\"android.permission.WRITE_EXTERNAL_STORAGE\" />",
+                            "count": 1
+                        },
+                        {
+                            "xml": "<uses-permission android:name=\"android.permission.READ_EXTERNAL_STORAGE\" />",
+                            "count": 1
+                        }
+                    ],
+                    "/manifest/application": [
+                        {
+                            "xml": "<activity android:configChanges=\"orientation|keyboardHidden|screenSize|smallestScreenSize\" android:name=\"com.mattrayner.vuforia.app.ImageTargets\" android:noHistory=\"true\" android:screenOrientation=\"landscape\"></activity>",
+                            "count": 1
+                        }
+                    ],
+                    "/manifest": [
+                        {
+                            "xml": "<uses-permission android:name=\"android.permission.VIBRATE\" />",
+                            "count": 1
+                        }
+                    ]
+                }
+            },
+            "res/xml/config.xml": {
+                "parents": {
+                    "/*": [
+                        {
+                            "xml": "<feature name=\"VuforiaPlugin\"><param name=\"android-package\" value=\"com.mattrayner.vuforia.VuforiaPlugin\" /></feature>",
+                            "count": 1
+                        }
+                    ]
+                }
+            },
+            "res/values/strings.xml": {
+                "parents": {
+                    "/*": [
+                        {
+                            "xml": "<string name=\"button_OK\">OK</string>",
+                            "count": 1
+                        }
+                    ]
+                }
+            }
+        }
     },
-    "cordova-plugin-vibration": {
-      "PACKAGE_NAME": "com.phonegap.helloworld"
+    "installed_plugins": {
+        "cordova-plugin-vuforia-sdk": {
+            "PACKAGE_NAME": "com.phonegap.helloworld"
+        },
+        "cordova-plugin-vuforia": {
+            "PACKAGE_NAME": "com.phonegap.helloworld"
+        },
+        "cordova-plugin-vibration": {
+            "PACKAGE_NAME": "com.phonegap.helloworld"
+        }
+    },
+    "dependent_plugins": {},
+    "modules": [
+        {
+            "id": "cordova-plugin-vuforia.VuforiaPlugin",
+            "file": "plugins/cordova-plugin-vuforia/www/VuforiaPlugin.js",
+            "pluginId": "cordova-plugin-vuforia",
+            "clobbers": [
+                "navigator.VuforiaPlugin"
+            ]
+        }
+    ],
+    "plugin_metadata": {
+        "cordova-plugin-vuforia-sdk": "6.0.117",
+        "cordova-plugin-vuforia": "3.2.1",
+        "cordova-plugin-vibration": "3.0.1"
     }
-  },
-  "dependent_plugins": {},
-  "modules": [
-    {
-      "id": "cordova-plugin-vuforia.VuforiaPlugin",
-      "file": "plugins/cordova-plugin-vuforia/www/VuforiaPlugin.js",
-      "pluginId": "cordova-plugin-vuforia",
-      "clobbers": [
-        "navigator.VuforiaPlugin"
-      ]
-    }
-  ],
-  "plugin_metadata": {
-    "cordova-plugin-vuforia-sdk": "6.0.117",
-    "cordova-plugin-vuforia": "3.2.1",
-    "cordova-plugin-vibration": "3.0.1"
-  }
 }

@@ -1,86 +1,72 @@
-/*
- * Licensed to the Apache Software Foundation (ASF) under one
- * or more contributor license agreements.  See the NOTICE file
- * distributed with this work for additional information
- * regarding copyright ownership.  The ASF licenses this file
- * to you under the Apache License, Version 2.0 (the
- * "License"); you may not use this file except in compliance
- * with the License.  You may obtain a copy of the License at
- *
- * http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing,
- * software distributed under the License is distributed on an
- * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied.  See the License for the
- * specific language governing permissions and limitations
- * under the License.
- */
+/** HRW Roomchecker
+  * von Natalie Roth und Stefan Werntges
+  * als Projekt im Modul VR / AR
+  */
 
-var g_db;
-var showStatus = "main";
-
+//Speicherort für die Datenbank als JSON Liste
+//Für den Prototypen ist diese hart verdrahtet
 var storage = window.localStorage;
 
-
+// Funktionen der eigentlichen App
 var app = {
-    // Vuforia license
+  /**
+  Einige der Funktionen sind durch das Plugin vorgegeben
+  Bei der Lizens habdelt es sich um eine Entwickler Lizens ohne Rechte auf großflächige Verbreitung
+  simpleOptions ermöglichen einen Schnellzugriff auf den Scanner.
+  matchedImages listet auf, welche Marker nacheinander erkannt wurden.
+  */
     vuforiaLicense: "AagZBDX/////AAAAGU6J3Zq0nkVem1dwIwjjASd90kLbi2boYVr1vLfMGXt2jOAzEAjYTHLMRb+vQJ7wtmyP1QKJO84U6DJRuUFbdhR0vAIk854OCMU9g1IM3FW/PwJOGZ+8r0F1fLLf8T1uOx2ZVGbm8OISnWJv+UqgOx0SfVWax7SGzZ8H2c01ZBT6tW67iT/+ns6ZsWNpYRA2XSrIOAS/+DkhW+gT4+MJSx4FgYjS4Ss1z7ZHbgXCkbBPjL/7uLVx2lDLZc6MVhb1Wnl2Lsh3nEPWyTDK1Qz0mHPnKFOmSuUnnzXxeGzm1ZYBYoptdE28tc2Qiw10TC5QopGLXiHjjYTgljQf3aAvQWy/A82KucDRzRa8G5BHmxYB",
-    // Are we launching Vuforia with simple options?
     simpleOptions: null,
-    // Which images have we matched?
     matchedImages: [],
-    // Application Constructor
+
+    //Konstruktor
     initialize: function() {
         this.bindEvents();
     },
-    // Bind Event Listeners
-    //
-    // Bind any events that are required on startup. Common events are:
-    // "load", "deviceready", "offline", and "online".
+
+    //Auflisten von benötigten Event Listener
     bindEvents: function() {
         document.addEventListener("deviceready", this.onDeviceReady, false);
     },
-    // deviceready Event Handler
-    //
-    // The scope of "this" is the event. In order to call the "receivedEvent"
-    // function, we must explicitly call "app.receivedEvent(...);"
+
+    //Spezielle Funktion um der App mitzuteilen, dass die Ansicht geladen ist.
+    //Ab diesem Event wird die App startbereit gemacht
     onDeviceReady: function() {
         app.receivedEvent("deviceready");
     },
-    // Update DOM on a Received Event
+
+    //Die Kernfunktion für erhaltenen Events.
+    //Da nur ein Event verwendet wird, ist dies einfach gehalten
     receivedEvent: function(id) {
-        // Start Vuforia using simple options
+      if(id == "deviceready") // Wenn die Ansicht geladen wurde
+        // Binde eine onClick Funktion an das startScan Element
         document.getElementById("startScan").onclick = function () {
-            app.startVuforia(true);
+            app.startVuforia(true); //Startet Vuforia mit einfachen optionen (true)
         };
+      }
     },
-    // Start the Vuforia plugin
+    //Startfunktion des Vuforia Plugins
     startVuforia: function(simpleOptions, successCallback, overlayMessage, targets){
         var options;
 
+        //Einstellung von nicht definiertem overlay Text
         if(typeof overlayMessage == "undefined")
             overlayMessage = "Bitte richte deine Kamera auf ein Raumschild";
 
+        //Definition der Ziele sofern keine speziellen Ziele angegeben wurden
         if(typeof targets == "undefined")
             targets = [ "HS_1", "HS_2", "HS_3", "HS_4" ];
 
-        // Reset the matched images
-        app.matchedImages = [];
+        app.matchedImages = []; //löschen der Liste bereits gefundener Marker
+        app.simpleOptions = simpleOptions; //setzt die simpleOptions Flag
 
-        // Set the global simpleOptions flag
-        app.simpleOptions = simpleOptions;
-
-        // Log out wether or not we are using simpleOptions
-        console.log("Simple options: "+!!app.simpleOptions);
-
-        // Load either simple, or full options
+        //Lade entsprechende Optionen
         if(!!app.simpleOptions){
             options = {
-                databaseXmlFile: "www/targets/HRW.xml",
-                targetList: targets,
-                overlayMessage: overlayMessage,
-                vuforiaLicense: app.vuforiaLicense
+                databaseXmlFile: "www/targets/HRW.xml", //Datei der Marker
+                targetList: targets,                    //Liste der Ziele
+                overlayMessage: overlayMessage,         //Nachricht bei der Kamera
+                vuforiaLicense: app.vuforiaLicense      //Die verwendete Lizens
             };
         } else {
             options = {
@@ -88,42 +74,41 @@ var app = {
                 targetList: targets,
                 vuforiaLicense: app.vuforiaLicense,
                 overlayMessage: overlayMessage,
-                showDevicesIcon: true,
-                showAndroidCloseButton: true,
-                autostopOnImageFound: false
+                showDevicesIcon: true,                //Zeigt Vuforia Icons
+                showAndroidCloseButton: true,         //Zeigt Android onScreen Button
+                autostopOnImageFound: false           //Stoppt die Suche wenn ein Marker gefunden wurde
             };
         }
 
-        // Start Vuforia with our options
+        //Eigentlicher Start der Vuforia Software mit den angegebenen Optionen
         navigator.VuforiaPlugin.startVuforia(
             options,
-            successCallback || app.vuforiaMatch,
+            successCallback || app.vuforiaMatch,  //Wenn ein Marker gefunden wurde, wird vuforiaMatch aufgerufen
             function(data) {
                 alert("Error: " + data);
             }
         );
     },
+
+    //Funktion bei gefunden Marker
     vuforiaMatch: function(data) {
-        // Have we found an image?
-
+        //Wenn ein Bild gefunden wurde
         if(data.status.imageFound) {
-            // If we are using simple options, alert the image name
+            //Wenn simpleOptions gewählt wurden
             if(app.simpleOptions) {
-                loadInfo(data.result.imageName);
-                //Toene beim Scannen abspielen
-                //app.playSound(); // Play a sound so that the user has some feedback
-            //    navigator.vibrate(500);
+                loadInfo(data.result.imageName); //Funktion die bei gescannten Markern deren Namen verarbeitet
             }
-        }/**/
-        console.log(data);
+        }
     },
-    // Stop the Vuforia plugin
-    stopVuforia: function(){
-        navigator.VuforiaPlugin.stopVuforia(function (data) {
-            console.log(data);
 
+    //Vuforia anhalten
+    stopVuforia: function(){
+        //Beende das Plugin und Werte die Daten aus
+        navigator.VuforiaPlugin.stopVuforia(function (data) {
+            //Aufruf beim Timeout
             if (data.success == "true") {
                 alert("TOO SLOW! You took too long to find an image.");
+            //Aufruf bei Fehlern
             } else {
                 alert("Couldn\"t stop Vuforia\n"+data.message);
             }
@@ -131,39 +116,15 @@ var app = {
             console.log("Error stopping Vuforia:\n"+data);
         });
     },
-    // Play a bell sound
-    playSound: function(resumeTrackers) {
-        // Where are we playing the sound from?
-        var soundURL = app.getMediaURL("sounds/sound.wav");
-
-        // Setup the media object
-        var media = new Media(soundURL, function(){
-            console.log("Sound Played");
-
-            navigator.VuforiaPlugin.startVuforiaTrackers(
-                function() {
-                    console.log("Started tracking again")
-                },
-                function() {
-                    console.log("Could not start tracking again")
-                }
-            );
-        }, app.mediaError);
-        // Play the sound
-        media.play();
-    },
-    // Get the correct media URL for both Android and iOS
-    getMediaURL: function(s) {
-        if(device.platform.toLowerCase() === "android") return "/android_asset/www/" + s;
-        return s;
-    },
-    // Handle a media error
-    mediaError: function(e) {
-        alert("Media Error");
-        alert(JSON.stringify(e));
-    }
 };
 
+//Starte die initialisierung der Vuforia App
+app.initialize();
+
+
+
+//Funktion beim fertig laden der Ansicht
+//Es werden lediglich Events zum Sichtbar / Unsichtbar machen der Informationen gebunden
 $(document).ready(function(){
   $("#closeShowroom").on("touch click",function(){
     $("#showRoom").css("visibility","hidden");
@@ -183,31 +144,33 @@ $(document).ready(function(){
       $("#roomDates").toggleClass("invis");
   });
 
-  //Abfrage nach aenderungen seit letztem Datum
+  //Abfrage nach Änderungen seit letztem aufruf
   var lastTime = storage.getItem("lastDate");
-  //Abfrage
+  //Abfrage ob es ein lastDate gibt
   /*if (!lastTime instanceof Date){
     firstLoadDB();
   }/**/
+
+  //lokale Datenbank laden, im eigentlichen Programm wird dies nur beim ersten Start (kein lastDate) ausgeführt
   firstLoadDB();
-  //todo: update der Datenbank von Server
 
-
+  //An dieser Stelle würde vom Server ein update gezogen werden
+  //Diese würde in den lokalen Speicher gelegt werden
 
   //Speichern der letzten Abfrage als letztes Datum
   storage.setItem("lastDate", Date.now());
-  //laden der lokalen Datenbank
+
+  //Parsen der lokalen Datenbank in eine auslesbare Variable
   g_db = JSON.parse(localStorage.getItem("db"));
 });
 
+//Macht den Infobereich Sichtbar
 function loadInfo(e){
     loadHTML(e);
     $("#showRoom").css("visibility","visible");
 }
 
-app.initialize();
-
-
+//Lädt Info für Info aus der Datenbank
 function loadHTML(k){
 
   $("#Montag").html("<div class='full'>Montag</div>");
